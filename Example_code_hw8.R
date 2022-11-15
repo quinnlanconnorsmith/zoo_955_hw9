@@ -1,4 +1,4 @@
-#Zoo 955 HW8 MLE
+#Zoo 955 HW8 MLE 
 
 # Q1: Simulate some data for a linear regression using the simple linear regression model: yi = beta_0 + beta_1*xi + error 
 # Where error~N(0,sig).  

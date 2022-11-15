@@ -3,7 +3,7 @@
 #• time = seq(from=1, to=50)
 #• N=array(dim=c(1,length(time))); N[1]=5
 #• for (i in time[2:length(time)]{• N[i] = ...
-#• }
+#• } 
 
 #Q1. Plot the data
 #• Generate a model predicted time series of abundance for a population growing according to the discrete time logistic growth model
