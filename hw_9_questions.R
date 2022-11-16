@@ -1,8 +1,7 @@
 
 library(dplyr)
 
-# Calculate abundance at a specific timestep using a logistic
-# growth curve.
+# Calculate abundance at a specific timestep using a logistic growth curve
 calc_current_abundance <- function(N_previous, r, K) {
   N_previous + r*N_previous*(1 - N_previous/K)
 }
@@ -18,7 +17,6 @@ calc_logistic_growth_curve <- function(N_initial, time, r, K) {
 }
 
 ##### Q1 #####
-
 
 # Generate a time series of abundance for a population growing according to the 
 # discrete time logistic growth model.
