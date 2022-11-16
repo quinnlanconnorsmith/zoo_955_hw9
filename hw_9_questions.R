@@ -12,7 +12,7 @@ calc_logistic_growth_curve <- function(N_initial, time, r, K) {
   for (i in time[2:length(time)]) {
     N[i] <- calc_current_abundance(N[i-1], r, K)
   } 
-  return(data.frame(time, N))
+  return(N)
 }
 
 # Generate a time series of abundance for a population growing according to the 
@@ -25,7 +25,8 @@ time = seq(from=1, to=50)
 # Generate an abundance time series using a growth rate (r) of
 # 0.2 (or 20%), a carrying capacity (K) of 100, and starting at
 # 5% of the carrying capacity (N_initial = 0.05*100 = 5).
-abundance_ts <- calc_logistic_growth_curve(N_initial = 5, time, r, K)
+abundance_vals <- calc_logistic_growth_curve(N_initial = 5, time, r, K)
+abundance_ts <- data.frame(time, N = abundance_vals)
 
 ##### Q1 #####
 
