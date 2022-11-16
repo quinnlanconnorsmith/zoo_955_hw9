@@ -39,6 +39,12 @@ plot(abundance_ts$time, abundance_ts$N)
 # Pretend you don’t know the true parameters (r and K) and adjust them until 
 # your model fits the data pretty well (visually)
 
+# TODO: no idea what to do here
+abundance.glm <- glm(N ~ time, data=abundance_ts, family="binomial")
+time_tiny <- seq(1,50,by=0.01)
+lines(time_tiny, predict(abundance.glm, data.frame(time=time_tiny), type="response"))
+
+# Plot the data
 
 #Q2. Plot the data
 #•Create a function that returns the negative log likelihood of the 
@@ -46,6 +52,43 @@ plot(abundance_ts$time, abundance_ts$N)
 #•Use optim() or a grid search and the function you just created to 
 #estimate the parameters of your model – remember to add the 
 #variance as a third parameter to be estimated (or use its analytical MLE: SSE/n)
+# Create a function that returns the negative log likelihood of the 
+# model parameters (r, K) given the data (Nt)
+
+calc_negll <- function(data, params) {
+  r <- params[1]
+  K <- params[2]
+  sigma <- params[3]
+  N <- data$N
+  time <- data$time
+  Nfit <- calc_logistic_growth_curve(N[1], time, r, K)
+  -sum(dnorm(x=N, mean=Nfit, sd=sigma, log=T))
+}
+
+# Use optim() or a grid search and the function you just created to 
+# estimate the parameters of your model – remember to add the 
+# variance as a third parameter to be estimated (or use its analytical MLE: SSE/n)
+
+# Below is the grid search option
+
+# Set up parameter options
+negll_grid_params <- expand.grid(
+  r = seq(0,1,by=0.1), 
+  K = seq(10,100,by=10),
+  sigma = seq(1,20,by=1))
+
+# Calculate -LogLikelihood for each combo
+# TODO: Probably need different input data here
+negll_grid_out <- apply(negll_grid_params, 1, calc_negll, data=abundance_ts) 
+
+# Extract the parameters that result in the smallest negative log likelihood
+negll_grid_params[which.min(negll_grid_out),] 
+
+# Here is the `optim()` option (I like this less ...)
+optim(par = c(0.1, 100, 1), calc_negll, data = abundance_ts)
+
+# How well can you estimate the model parameters?
+# TODO: ANSWER THIS
 
 #•Q3. How well can you estimate the model parameters?
 
