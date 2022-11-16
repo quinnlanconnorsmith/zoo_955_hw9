@@ -15,6 +15,9 @@ calc_logistic_growth_curve <- function(N_initial, time, r, K) {
   return(N)
 }
 
+##### Q1 #####
+
+
 # Generate a time series of abundance for a population growing according to the 
 # discrete time logistic growth model.
 
@@ -28,11 +31,11 @@ time = seq(from=1, to=50)
 abundance_vals <- calc_logistic_growth_curve(N_initial = 5, time, r, K)
 abundance_ts <- data.frame(time, N = abundance_vals)
 
-##### Q1 #####
-
 # Plot the data.
 
 plot(abundance_ts$time, abundance_ts$N)
+
+##### Q2 #####
 
 # Generate a model predicted time series of abundance for a population growing 
 # according to the discrete time logistic growth model
@@ -46,12 +49,8 @@ lines(time_tiny, predict(abundance.glm, data.frame(time=time_tiny), type="respon
 
 # Plot the data
 
-#Q2. Plot the data
-#•Create a function that returns the negative log likelihood of the 
-#model parameters (r, K) given the data (Nt)
-#•Use optim() or a grid search and the function you just created to 
-#estimate the parameters of your model – remember to add the 
-#variance as a third parameter to be estimated (or use its analytical MLE: SSE/n)
+##### Q3 #####
+
 # Create a function that returns the negative log likelihood of the 
 # model parameters (r, K) given the data (Nt)
 
@@ -90,21 +89,31 @@ optim(par = c(0.1, 100, 1), calc_negll, data = abundance_ts)
 # How well can you estimate the model parameters?
 # TODO: ANSWER THIS
 
-#•Q3. How well can you estimate the model parameters?
+##### Q4 #####
 
-#•Add observation error ( Nt + rnorm(mean=0, sd=?) ) to your data
-#•Use optim() or a grid search and the function you just created to 
-#estimate the parameters of your model based on this new data – 
-#remember to add the variance as a third parameter to be estimated (or use its analytical MLE: SSE/n)
+# Add observation error ( Nt + rnorm(mean=0, sd=?) ) to your data
+# Use optim() or a grid search and the function you just created to 
+# estimate the parameters of your model based on this new data – 
+# remember to add the variance as a third parameter to be estimated 
+# (or use its analytical MLE: SSE/n)
 
-#•Q4. How well can you estimate the model parameters now?  
-#Is there any evidence of correlation in your parameter estimates (e.g., a ridge in the likelihood surface)?
+# How well can you estimate the model parameters now?  
+# Is there any evidence of correlation in your parameter 
+# estimates (e.g., a ridge in the likelihood surface)?
 
-#•Start your model with observation error at 5% of K
-#•Use optim() or a grid search and the function you just created to 
-#estimate the parameters of your model based on this new data – 
-#remember to add the variance as a third parameter to be estimated (or use its analytical MLE: SSE/n)
+##### Q5 #####
 
-#•Q5. How well can you estimate the model parameters now?
+# Start your model with observation error at 5% of K
 
-#•Q6. Repeating this analysis starting at 90% of K, how well can you estimate the model parameters?
+# Use optim() or a grid search and the function you just created to 
+# estimate the parameters of your model based on this new data – 
+# remember to add the variance as a third parameter to be estimated 
+# (or use its analytical MLE: SSE/n)
+
+# How well can you estimate the model parameters now?
+
+##### Q6 #####
+
+# Repeating this analysis starting at 90% of K, how well can you 
+# estimate the model parameters?
+
