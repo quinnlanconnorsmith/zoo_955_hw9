@@ -1,13 +1,43 @@
-#Generate a time series of abundance for a population growing according to the discrete time logistic growth model.• r <- 0.2
-#• K <- 100
-#• time = seq(from=1, to=50)
-#• N=array(dim=c(1,length(time))); N[1]=5
-#• for (i in time[2:length(time)]{• N[i] = ...
-#• } 
 
-#Q1. Plot the data
-#• Generate a model predicted time series of abundance for a population growing according to the discrete time logistic growth model
-#• Pretend you don’t know the true parameters (r and K) and adjust them until your model fits the data pretty well (visually)
+# Calculate abundance at a specific timestep using a logistic
+# growth curve.
+calc_current_abundance <- function(N_previous, r, K) {
+  N_previous + r*N_previous*(1 - N_previous/K)
+}
+
+# Generate an abundance time series table using a logistic growth curve
+calc_logistic_growth_curve <- function(N_initial, time, r, K) {
+  N <- rep(NA, length(time)) # Vector of NAs to fill
+  N[1] <- N_initial
+  for (i in time[2:length(time)]) {
+    N[i] <- calc_current_abundance(N[i-1], r, K)
+  } 
+  return(data.frame(time, N))
+}
+
+# Generate a time series of abundance for a population growing according to the 
+# discrete time logistic growth model.
+
+r <- 0.2
+K <- 100
+time = seq(from=1, to=50)
+
+# Generate an abundance time series using a growth rate (r) of
+# 0.2 (or 20%), a carrying capacity (K) of 100, and starting at
+# 5% of the carrying capacity (N_initial = 0.05*100 = 5).
+abundance_ts <- calc_logistic_growth_curve(N_initial = 5, time, r, K)
+
+##### Q1 #####
+
+# Plot the data.
+
+plot(abundance_ts$time, abundance_ts$N)
+
+# Generate a model predicted time series of abundance for a population growing 
+# according to the discrete time logistic growth model
+# Pretend you don’t know the true parameters (r and K) and adjust them until 
+# your model fits the data pretty well (visually)
+
 
 #Q2. Plot the data
 #•Create a function that returns the negative log likelihood of the 
