@@ -1,4 +1,6 @@
 
+library(dplyr)
+
 # Calculate abundance at a specific timestep using a logistic
 # growth curve.
 calc_current_abundance <- function(N_previous, r, K) {
@@ -81,7 +83,8 @@ negll_grid_params <- expand.grid(
 negll_grid_out <- apply(negll_grid_params, 1, calc_negll, data=abundance_ts) 
 
 # Extract the parameters that result in the smallest negative log likelihood
-negll_grid_params[which.min(negll_grid_out),] 
+negll_grid_mins <- negll_grid_params[which.min(negll_grid_out),] 
+negll_grid_mins
 
 # Here is the `optim()` option (I like this less ...)
 optim(par = c(0.1, 100, 1), calc_negll, data = abundance_ts)
@@ -92,14 +95,38 @@ optim(par = c(0.1, 100, 1), calc_negll, data = abundance_ts)
 ##### Q4 #####
 
 # Add observation error ( Nt + rnorm(mean=0, sd=?) ) to your data
+
+set.seed(30)
+abundance_ts_with_error <- abundance_ts %>% 
+  mutate(N = N + rnorm(nrow(abundance_ts), mean=0, sd=10))
+
+# Adjust sd above until this looks more like a real ecological dataset
+plot(abundance_ts_with_error$time, abundance_ts_with_error$N) 
+
 # Use optim() or a grid search and the function you just created to 
 # estimate the parameters of your model based on this new data – 
 # remember to add the variance as a third parameter to be estimated 
 # (or use its analytical MLE: SSE/n)
 
-# How well can you estimate the model parameters now?  
+negll_grid_out_error <- apply(negll_grid_params, 1, calc_negll, data=abundance_ts_with_error) 
+negll_grid_mins_error <- negll_grid_params[which.min(negll_grid_out_error),] 
+negll_grid_mins_error
+
+# How well can you estimate the model parameters now?
+
+# TODO: Answer this
+
 # Is there any evidence of correlation in your parameter 
 # estimates (e.g., a ridge in the likelihood surface)?
+library(ggplot2)
+bind_cols(negll_grid_params, negll = negll_grid_out_error) %>% 
+  filter(sigma == negll_grid_mins_error$sigma) %>% 
+  ggplot(aes(x = r, y = K, z = negll)) + 
+  geom_contour_filled() + 
+  ggtitle(sprintf('Using sigma=%s', round(negll_grid_mins_error$sigma, digits = 2))) + 
+  ylab('Values for K') + xlab('Values for r')
+
+# TODO: Answer this / get the plot to work
 
 ##### Q5 #####
 
