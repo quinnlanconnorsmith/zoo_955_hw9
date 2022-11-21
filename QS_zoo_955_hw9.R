@@ -27,6 +27,7 @@ r<-.15 #growth of 15%
 K <- 100 #carrying capacity 
 time = seq(from=1, to=50) #50 time steps 
 
+
 # The equation 
 eq <- function(N_p, r, K) {
   N_p + r*N_p*(1 - N_p/K)
@@ -71,14 +72,14 @@ plot(df$time, df$N)
 #estimate the parameters of your model – remember to add the 
 #variance as a third parameter to be estimated (or use its analytical MLE: SSE/n)
 
-sd(df$N)
 
+y=5 + r*5*(1 - 5/K)
 #Standard deviation = 34.69
 sigma <- sd(df$N)
 mean <- mean(df$N)
 
 nll_1 <- function(r,K, sigma){
-  -sum(dnorm(x=y, mean=r+K*time, sd=sigma, log=T))
+  -sum(dnorm(x=y, mean=mean, sd=sigma, log=T))
 }
 
 
@@ -86,7 +87,7 @@ fun_1 <- function(par){
   r <- par[1]
   K <- par[2]
   sigma <- par[3]
-  mean <- r+K*time
+  mean <- mean
   nll <- nll_1(r,K, sigma)
 }
 
@@ -95,7 +96,38 @@ fit <- optim(par=c(1,2,3), fn=fun_1)
 optim_coef <- fit$par
 
 optim_coef
+
+#[1] 70.208542  1.616995 31.496970
+#Well that seems very off 
+#[1] -0.1541297  2.3647926  5.7116327
+#[1] -22.417269   3.032915  52.368151
+
 #•Q3. How well can you estimate the model parameters?
+#Not very well it would seem 
+
+
+y2=5 + r*5*(1 - 5/K)+rnorm(length(time), mean=mean, sd=sigma)
+
+nll_2 <- function(r,K, sigma){
+  -sum(dnorm(x=y2, mean=mean, sd=sigma, log=T))
+}
+
+
+fun_2 <- function(par){
+  r <- par[1]
+  K <- par[2]
+  sigma <- par[3]
+  mean <- mean
+  nll <- nll_2(r,K, sigma)
+}
+
+#optim() stuff 
+fit <- optim(par=c(1,2,3), fn=fun_2)
+optim_coef <- fit$par
+
+optim_coef
+#[1] -538.70340   21.98341 1134.80586
+#Hmm this also seem very off 
 
 #•Add observation error ( Nt + rnorm(mean=0, sd=?) ) to your data
 #•Use optim() or a grid search and the function you just created to 
@@ -113,3 +145,48 @@ optim_coef
 #•Q5. How well can you estimate the model parameters now?
 
 #•Q6. Repeating this analysis starting at 90% of K, how well can you estimate the model parameters?
+
+vals_2 <- pop(N_i = 90, time, r, K)
+df_2 <- data.frame(time, N = vals_2)
+
+sigma_2 <- sd(df_2$N)
+mean_2 <- mean(df_2$N)
+
+eq <- function(N_p, r, K) {
+  N_p + r*N_p*(1 - N_p/K)
+}
+
+# Generate time series 
+pop <- function(N_i, time, r, K) {
+  N <- rep(NA, length(time)) 
+  N[1] <- N_i
+  for (i in time[2:length(time)]) {
+    N[i] <- eq(N[i-1], r, K)
+  } 
+  return(N)
+}
+
+plot(df_2$time, df_2$N)
+
+y3=90 + r*90*(1 - 90/K)+rnorm(length(time), mean=mean_2, sd=sigma_2)
+
+nll_3 <- function(r,K, sigma_2){
+  -sum(dnorm(x=y2, mean=mean_2, sd=sigma_2, log=T))
+}
+
+
+fun_3 <- function(par){
+  r <- par[1]
+  K <- par[2]
+  sigma <- par[3]
+  mean <- mean
+  nll <- nll_3(r,K, sigma_2)
+}
+
+#optim() stuff 
+fit <- optim(par=c(1,2,3), fn=fun_3)
+optim_coef <- fit$par
+
+optim_coef
+
+#Well this doesn't work quite as intended either 
