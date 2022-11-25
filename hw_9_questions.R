@@ -130,6 +130,9 @@ bind_cols(negll_grid_params, negll = negll_grid_out_error) %>%
 
 # Start your model with observation error at 5% of K
 
+# This is what we already did because we set the initial population
+# size (N_intial = 5) at 5% of the carrying capacity (K = 100).
+
 # Use optim() or a grid search and the function you just created to 
 # estimate the parameters of your model based on this new data – 
 # remember to add the variance as a third parameter to be estimated 
@@ -142,3 +145,10 @@ bind_cols(negll_grid_params, negll = negll_grid_out_error) %>%
 # Repeating this analysis starting at 90% of K, how well can you 
 # estimate the model parameters?
 
+# Generate an abundance time series using a growth rate (r) of
+# 0.2 (or 20%), a carrying capacity (K) of 100, and starting at
+# 90% of the carrying capacity (N_initial = 0.90*100 = 90).
+abundance_vals_q6 <- calc_logistic_growth_curve(N_initial = 90, time, r, K)
+abundance_ts_q6 <- data.frame(time, N = abundance_vals_q6)
+
+#TODO: have way more to do on this question
