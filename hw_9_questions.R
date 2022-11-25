@@ -42,12 +42,48 @@ plot(abundance_ts$time, abundance_ts$N)
 # Pretend you don’t know the true parameters (r and K) and adjust them until 
 # your model fits the data pretty well (visually)
 
-# TODO: no idea what to do here
-abundance.glm <- glm(N ~ time, data=abundance_ts, family="binomial")
-time_tiny <- seq(1,50,by=0.01)
-lines(time_tiny, predict(abundance.glm, data.frame(time=time_tiny), type="response"))
+# The data already fit a curve because of how we generated it, so this
+# seems like a strange step. Maybe we did something wrong above?
 
-# Plot the data
+# Found mathematical equation at 
+# https://math.libretexts.org/Bookshelves/Calculus/Book%3A_Calculus_(OpenStax)/08%3A_Introduction_to_Differential_Equations/8.04%3A_The_Logistic_Equation
+logistic_growth_eqn  <- function(P0, t, K, r) {
+  p_exp_rt <- P0*exp(r*t)
+  (K*p_exp_rt) / ( K - P0 + p_exp_rt)
+}
+
+# Try K = 50 and r = 0.6
+time_curve_guess <- seq(1,50,by=0.01)
+
+# Plot the data points
+plot(abundance_ts$time, abundance_ts$N)
+
+# Plot a curve with K=50, r=0.6
+lines(x = time_curve_guess, col = 'red', lwd = 2,
+      y = logistic_growth_eqn(t = time_curve_guess, P0 = 5, K = 50, r = 0.6))
+
+# That capped out to early, increase K
+lines(x = time_curve_guess, col = 'blue', lwd = 2,
+      y = logistic_growth_eqn(t = time_curve_guess, P0 = 5, K = 150, r = 0.6))
+
+# Now you can't see the top, decrease K and decrease r so the curve is less sharp
+lines(x = time_curve_guess, col = 'darkgreen', lwd = 2,
+      y = logistic_growth_eqn(t = time_curve_guess, P0 = 5, K = 100, r = 0.4))
+
+# Still reaches max way to soon, decrease r
+lines(x = time_curve_guess, col = 'purple', lwd = 2,
+      y = logistic_growth_eqn(t = time_curve_guess, P0 = 5, K = 100, r = 0.1))
+
+# That last one was too low, increase r
+lines(x = time_curve_guess, col = 'green', lwd = 2,
+      y = logistic_growth_eqn(t = time_curve_guess, P0 = 5, K = 100, r = 0.2))
+
+# Now slightly too high, actually, go in between 0.1 and 0.2
+lines(x = time_curve_guess, col = 'cornflowerblue', lwd = 2,
+      y = logistic_growth_eqn(t = time_curve_guess, P0 = 5, K = 100, r = 0.175))
+
+# Interestingly, r = 0.175 visually appears to follow the curve more closely
+# (though, it underestimates the population size compared to r = 0.2).
 
 ##### Q3 #####
 
