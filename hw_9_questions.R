@@ -113,7 +113,6 @@ negll_grid_params <- expand.grid(
   sigma = seq(1,20,by=1))
 
 # Calculate -LogLikelihood for each combo
-# TODO: Probably need different input data here
 negll_grid_out <- apply(negll_grid_params, 1, calc_negll, data=abundance_ts) 
 
 # Extract the parameters that result in the smallest negative log likelihood
@@ -124,7 +123,10 @@ negll_grid_mins
 optim(par = c(0.1, 100, 1), calc_negll, data = abundance_ts)
 
 # How well can you estimate the model parameters?
-# TODO: ANSWER THIS
+# We can estimate them exactly because we generated the data given a
+# specific r and K ... do we need different input data here since these 
+# data were generated using the logistic growth equation with the specific
+# K & r provided? 
 
 ##### Q4 #####
 
@@ -132,7 +134,7 @@ optim(par = c(0.1, 100, 1), calc_negll, data = abundance_ts)
 
 set.seed(30)
 abundance_ts_with_error <- abundance_ts %>% 
-  mutate(N = N + rnorm(nrow(abundance_ts), mean=0, sd=10))
+  mutate(N = abs(N + rnorm(nrow(abundance_ts), mean=0, sd=10)))
 
 # Adjust sd above until this looks more like a real ecological dataset
 plot(abundance_ts_with_error$time, abundance_ts_with_error$N) 
@@ -147,8 +149,10 @@ negll_grid_mins_error <- negll_grid_params[which.min(negll_grid_out_error),]
 negll_grid_mins_error
 
 # How well can you estimate the model parameters now?
-
-# TODO: Answer this
+# Considering it was an exact match before, not nearly as well. The
+# K is the same, but the growth rate is lower. Using the `optim()` approach,
+# we get the same growth rate but the K is slightly lower at 98
+optim(par = c(0.1, 100, 1), calc_negll, data = abundance_ts_with_error)
 
 # Is there any evidence of correlation in your parameter 
 # estimates (e.g., a ridge in the likelihood surface)?
@@ -157,17 +161,14 @@ bind_cols(negll_grid_params, negll = negll_grid_out_error) %>%
   filter(sigma == negll_grid_mins_error$sigma) %>% 
   ggplot(aes(x = r, y = K, z = negll)) + 
   geom_contour_filled() + 
-  ggtitle(sprintf('Using sigma=%s', round(negll_grid_mins_error$sigma, digits = 2))) + 
+  ggtitle('Parameter correlation when using 5% of the carrying capacity') + 
   ylab('Values for K') + xlab('Values for r')
 
-# TODO: Answer this / get the plot to work
+# No correlation because there is a peak and not a ridge in the plot.
 
 ##### Q5 #####
 
 # Start your model with observation error at 5% of K
-
-# This is what we already did because we set the initial population
-# size (N_intial = 5) at 5% of the carrying capacity (K = 100).
 
 # Use optim() or a grid search and the function you just created to 
 # estimate the parameters of your model based on this new data – 
@@ -175,6 +176,40 @@ bind_cols(negll_grid_params, negll = negll_grid_out_error) %>%
 # (or use its analytical MLE: SSE/n)
 
 # How well can you estimate the model parameters now?
+
+# This is what we already did in Q1 - Q4 because we set the initial population
+# size (N_intial = 5) at 5% of the carrying capacity (K = 100). So instead,
+# we are showing this with 50%.
+
+# Generate an abundance time series using a growth rate (r) of
+# 0.2 (or 20%), a carrying capacity (K) of 100, and starting at
+# 50% of the carrying capacity (N_initial = 0.50*100 = 50).
+abundance_vals_q5 <- calc_logistic_growth_curve(N_initial = 50, time, r, K)
+set.seed(501)
+abundance_ts_q5 <- data.frame(time, N = abundance_vals_q5) %>% 
+  # But add in observation error
+  mutate(N = abs(N + rnorm(nrow(abundance_ts), mean=0, sd=10)))
+
+# Plot the data with and without the noise (without the noise should just
+# be the actual curve)
+plot(abundance_ts_q5$time, abundance_ts_q5$N)
+lines(abundance_ts_q5$time, abundance_vals_q5)
+
+# Calculate -LogLikelihood for each combo
+negll_grid_out_q5 <- apply(negll_grid_params, 1, calc_negll, data=abundance_ts_q5) 
+
+# Extract the parameters that result in the smallest negative log likelihood
+negll_grid_mins_q5 <- negll_grid_params[which.min(negll_grid_out_q5),] 
+negll_grid_mins_q5
+
+# This nailed it exactly - r = 0.2 and K = 100. There is a tiny bit of 
+# correlation between r and K for values of r from ~0.2 to ~0.4. See this plot:
+bind_cols(negll_grid_params, negll = negll_grid_out_q5) %>% 
+  filter(sigma == negll_grid_mins_q5$sigma) %>% 
+  ggplot(aes(x = r, y = K, z = negll)) + 
+  geom_contour_filled() + 
+  ggtitle('Parameter correlation when using 50% of the carrying capacity') + 
+  ylab('Values for K') + xlab('Values for r')
 
 ##### Q6 #####
 
@@ -185,6 +220,30 @@ bind_cols(negll_grid_params, negll = negll_grid_out_error) %>%
 # 0.2 (or 20%), a carrying capacity (K) of 100, and starting at
 # 90% of the carrying capacity (N_initial = 0.90*100 = 90).
 abundance_vals_q6 <- calc_logistic_growth_curve(N_initial = 90, time, r, K)
-abundance_ts_q6 <- data.frame(time, N = abundance_vals_q6)
+set.seed(28)
+abundance_ts_q6 <- data.frame(time, N = abundance_vals_q6) %>% 
+  # But add in observation error
+  mutate(N = abs(N + rnorm(nrow(abundance_ts), mean=0, sd=10)))
 
-#TODO: have way more to do on this question
+# Plot the data with and without the noise (without the noise should just
+# be the actual curve)
+plot(abundance_ts_q6$time, abundance_ts_q6$N)
+lines(abundance_ts_q6$time, abundance_vals_q6)
+
+# Calculate -LogLikelihood for each combo
+negll_grid_out_q6 <- apply(negll_grid_params, 1, calc_negll, data=abundance_ts_q6) 
+
+# Extract the parameters that result in the smallest negative log likelihood
+negll_grid_mins_q6 <- negll_grid_params[which.min(negll_grid_out_q6),] 
+negll_grid_mins_q6
+
+# It is closer than expected, actually. The K lines up but the growth rate
+# is too low (r = 0.1). Though, there seems to be a bit of correlation
+# between r and K since there isn't as much data to confirm the pattern.
+# See this plot:
+bind_cols(negll_grid_params, negll = negll_grid_out_q6) %>% 
+  filter(sigma == negll_grid_mins_q6$sigma) %>% 
+  ggplot(aes(x = r, y = K, z = negll)) + 
+  geom_contour_filled() + 
+  ggtitle('Parameter correlation when using 90% of the carrying capacity') + 
+  ylab('Values for K') + xlab('Values for r')
