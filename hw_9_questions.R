@@ -239,7 +239,8 @@ negll_grid_mins_q6
 
 # It is closer than expected, actually. The K lines up but the growth rate
 # is too low (r = 0.1). Though, there seems to be a bit of correlation
-# between r and K since there isn't as much data to confirm the pattern.
+# between r and K (there is a ridge between K's around 95-100 and r's between
+# 0.2 to 1. This is likely because there isn't much data to confirm the pattern.
 # See this plot:
 bind_cols(negll_grid_params, negll = negll_grid_out_q6) %>% 
   filter(sigma == negll_grid_mins_q6$sigma) %>% 
