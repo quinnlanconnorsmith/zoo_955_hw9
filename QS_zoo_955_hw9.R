@@ -106,6 +106,11 @@ optim_coef
 #Not very well it would seem 
 
 
+#•Add observation error ( Nt + rnorm(mean=0, sd=?) ) to your data
+#•Use optim() or a grid search and the function you just created to 
+#estimate the parameters of your model based on this new data – 
+#remember to add the variance as a third parameter to be estimated (or use its analytical MLE: SSE/n)
+
 y2=5 + r*5*(1 - 5/K)+rnorm(length(time), mean=mean, sd=sigma)
 
 nll_2 <- function(r,K, sigma){
@@ -129,13 +134,11 @@ optim_coef
 #[1] -538.70340   21.98341 1134.80586
 #Hmm this also seem very off 
 
-#•Add observation error ( Nt + rnorm(mean=0, sd=?) ) to your data
-#•Use optim() or a grid search and the function you just created to 
-#estimate the parameters of your model based on this new data – 
-#remember to add the variance as a third parameter to be estimated (or use its analytical MLE: SSE/n)
 
 #•Q4. How well can you estimate the model parameters now?  
 #Is there any evidence of correlation in your parameter estimates (e.g., a ridge in the likelihood surface)?
+
+#We have been running the model with Ni starting at 5 
 
 #•Start your model with observation error at 5% of K
 #•Use optim() or a grid search and the function you just created to 
